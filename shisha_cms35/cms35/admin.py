@@ -57,7 +57,6 @@ class Login(QDialog):
         #Combobox
         self.comboBox = QComboBox()
         self.comboBox.setObjectName(("comboBox"))
-        self.comboBox.addItem("test")
         
         #Combobox fuellen
         cnx = mysql.connector.connect(host='62.108.32.183',
@@ -71,18 +70,22 @@ class Login(QDialog):
         cursor = cnx.cursor()  
         query= "SELECT rights from members_rights"
         cursor.execute(query)
-        
-        for i in cursor:
-            self.comboBox.addItem(str(i))
+        result = cursor.fetchall()
+        for i in result:
+            self.comboBox.addItem(str(i[0]))
+            
         cnx.close()
+        print(result)
         if (not cnx.is_connected()):
             print('Disconnected from MySQL database')
         
         
         self.rUsername = QLabel("Benutzername")
+        self.rMail = QLabel("E-Mail")
         self.rPw = QLabel("Passwort")
         self.rPwBe = QLabel("Passwort bestaetigen")
         self.txtRname = QLineEdit(self)
+        self.txtRmail = QLineEdit(self)
         self.txtRpass = QLineEdit(self)
         self.txtRpassBe = QLineEdit(self)
         self.buttonRegistration = QPushButton('Registration', self)
@@ -91,6 +94,8 @@ class Login(QDialog):
         self.tab2.layout = QVBoxLayout(self)
         self.tab2.layout.addWidget(self.rUsername)
         self.tab2.layout.addWidget(self.txtRname)
+        self.tab2.layout.addWidget(self.rMail)
+        self.tab2.layout.addWidget(self.txtRmail)
         self.tab2.layout.addWidget(self.rPw)
         self.tab2.layout.addWidget(self.txtRpass)
         self.tab2.layout.addWidget(self.rPwBe)
@@ -121,33 +126,101 @@ class Login(QDialog):
     @pyqtSlot()
     def regmember(self):
         print("Registrierung clicked")
-        entry=[]
+        cnx = mysql.connector.connect(host='62.108.32.183',
+                              port=3306,
+                              database='aumcfuom_allgemein',
+                              user='aumcf_info2',
+                              password='An4pu3$3')
+        if cnx.is_connected():
+            print('Connected to MySQL database')
 
-        for xi in range(0,len(self.headerlist)):
-            entry.append(self.tablelist[0].item(0,xi).text())
-        print(entry)   
-        
-    def change(self, index):
-        print("Change Entry")
-        rowlist=[]
-        row = index
-        #print(row)
-        
-        for xj in range(0,len(self.headerlist)):
-            print(self.tablelist[1].item(row,xj).text())
-            if(self.tablelist[1].item(row,xj).text() == None):
-                rowlist.append("")
+        cursor = cnx.cursor()  
+            
+        if(self.txtRpass.text() == self.txtRpassBe.text()):
+            print("gleich")
+            query= "SELECT username from members"
+            cursor.execute(query)
+            result = cursor.fetchall()
+            user=[]
+            for i in result:
+                user.append(i[0])
+                
+            if(self.txtRname.text()in user):
+                print("vorhanden")
             else:
-                rowlist.append(self.tablelist[1].item(row,xj).text())
-        print(rowlist)
+                try:
+                    data = []
+                    data.append(str(self.txtRname.text()))
+                    data.append(str(self.txtRmail.text()))
+                    data.append(str(self.comboBox.currentText()))
+                    data.append(str(self.txtRpass.text()))
+                    print(data)
+                    query_user="INSERT INTO members (id, username, email, rights_ID, password) VALUES(NULL,%s,%s,(SELECT id from members_rights WHERE rights=%s),%s)"
+                    cursor.execute(query_user,data)
+                    cnx.commit()
+                except:
+                    cnx.rollback()
+        else:
+            pass   
+            
+        entry=[]
+        
+        print(entry)
+        
+        cnx.close()
+        #print(result)
+        if (not cnx.is_connected()):
+            print('Disconnected from MySQL database')   
     
     def handleLogin(self):
-        
+        '''
         if (self.txtName.text() == 'foo' and self.txtPass.text() == 'bar'):
             self.accept()
         else:
             QMessageBox.warning(
                 self, 'Error', 'Bad user or password')
+        
+        '''
+        print("Login Clicked")
+        cnx = mysql.connector.connect(host='62.108.32.183',
+                              port=3306,
+                              database='aumcfuom_allgemein',
+                              user='aumcf_info2',
+                              password='An4pu3$3')
+        if cnx.is_connected():
+            print('Connected to MySQL database')
+
+        cursor = cnx.cursor()
+        #Login Daten in Array
+        data_login=[]
+        data_login.append(self.txtName.text())
+        #data_login.append(self.txtPass.text())
+        print(data_login)
+        
+        query_login="Select id, username, password, rights_ID from members Where username=%s"
+        cursor.execute(query_login,data_login)
+        result = cursor.fetchall()
+        print(result)
+        user_login=[]
+        for i in result:
+            user_login.append(i)
+        
+        data_login.append(self.txtPass.text())
+        print(data_login[0],data_login[1])
+        print("user_login:",user_login[0][1],user_login[0][2])
+        if(data_login[0] == user_login[0][1] and data_login[1] == user_login[0][2]):
+            self.accept()
+        else:
+            QMessageBox.Warning(
+                self, 'Error', 'Benutzername und Passwort stimmen nicht ueberein')
+        #print(user_login)
+        print(user_login)
+        #if(self.txtRname.text()in user):
+        #   print("vorhanden")
+        cnx.close()
+        #print(result)
+        if (not cnx.is_connected()):
+            print('Disconnected from MySQL database')
 
 
 
