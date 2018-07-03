@@ -267,28 +267,28 @@ class Login(QDialog):
 class Window(QMainWindow):
     def __init__(self, parent=None):
         super(Window, self).__init__(parent)
-        '''
-        global user_name
-        print("INFO:",user_name)
-        '''
-        self.setMinimumSize(1400, 700)
+        
+        self.setMinimumSize(1400, 700)#Fenstergroesse
+        #Listen die in der for Schleife gefuellt werden
         self.tablist = []
         self.tablabellist = []
-        self.tablabellistname = ['New','Show','Change','Delete']
-        #
-        
+        self.tablabellistname = ['New','Show','Change']#Tabnamen
+ 
         layoutlist=[]
         self.tablelist = []
+        #Tabwidget
         self.Tab = QTabWidget()
+        #Headerlisten fuer die Tabellen der jeweiligen Tabs
         self.headerlist = [ 'ID','Brand','Sort','Taste','Rating','Weight','Price','Place','Added By','Date Added','Date Modified', 'Change','Delete']
         self.headerlistNew = ['Brand','Sort','Taste','Rating','Weight','Price','Place']
         
-        
+        #nummer der Tabwidgets
         num_tab_widgets = len(self.tablabellistname)
         
+        #In der For-Schleife werden die verschiedenen Widgets, Tabs, TableWidets, layouts zugeordnet
         for i in range(num_tab_widgets):
-            self.tablist.append(QWidget())
-            self.Tab.addTab(self.tablist[i], (self.tablabellistname[i]))
+            self.tablist.append(QWidget()) #Qwidget wird hinzugefuegt
+            self.Tab.addTab(self.tablist[i], (self.tablabellistname[i]))#Tabs werden hinzugefueht
             self.tablabellist.append(QLabel('title'))
             self.tablelist.append(QTableWidget())
             setattr(self,'Table%d'%i,self.tablelist[i])
@@ -298,25 +298,18 @@ class Window(QMainWindow):
             self.tablelist[i].setHorizontalHeaderLabels(self.headerlistNew)
             self.tablelist[i].setSortingEnabled(True)
             
-            #self.tablelist[i].setEditTriggers(QTableWidget.NoEditTriggers)
             self.tablelist[i].setSelectionBehavior(QTableWidget.SelectRows)
             self.tablelist[i].setSelectionMode(QTableWidget.SingleSelection)
             
-            
-            #self.tablelist
+
         
             layoutlist[i].addWidget(self.tablabellist[i])
             layoutlist[i].addWidget(self.tablelist[i])
             self.tablist[i].setLayout(layoutlist[i])
         
-        #Button new item        
-        #Tab.setTabEnabled(3,False)
+
         self.Tab.removeTab(2)
-        self.Tab.removeTab(2)
-        #Tab.addTab(tablist[3], (tablabellistname[3]))
-        #Tab.insertTab(self,tablist[3],(tablabellistname[3]))
-        
-        #Tablelist[0]--> New set right headerfiles
+
         self.tablelist[1].setColumnCount(len(self.headerlist))
         self.tablelist[1].setHorizontalHeaderLabels(self.headerlist)
         
@@ -385,22 +378,11 @@ class Window(QMainWindow):
         print(self.placeList)
             
         
-        #btn = QPushButton(self.tablelist[1])
-        #btn.setText('Change')
-        
         cnx.close()
         if (not cnx.is_connected()):
                 print('Disconnected from MySQL database')
 
-        
-        
-        
-        
-        
-        
-        #str to int
-        #ratingliststr = list(map(int, self.ratingList))
-        
+
         #combobox
         self.comboboxBrand = QComboBox(self)
         self.comboboxBrand.addItems(self.brandList)
@@ -439,6 +421,11 @@ class Window(QMainWindow):
         self.pushButton2.clicked.connect(self.load)
         layoutlist[1].addWidget(self.pushButton2)
         self.tablist[1].setLayout(layoutlist[1])
+        
+        self.pushButton3 = QPushButton("Change Entry")
+        self.pushButton3.clicked.connect(self.changeEntry)
+        layoutlist[2].addWidget(self.pushButton3)
+        self.tablist[2].setLayout(layoutlist[2])
         
         #self.tablelist[0].doubleClicked.connect(self.addEntry)
         
@@ -508,12 +495,7 @@ class Window(QMainWindow):
             self.tablelist[1].setCellWidget(row_number, (len(self.headerlist))-1, btnDeleteList[row_number])
             index = row_number
             btnDeleteList[row_number].clicked.connect(lambda *args, index=index: self.delete(index))
-            '''
-            index = QPersistentModelIndex(
-                self.tablelist[1].model().index(row_number, column))
-            button.clicked.connect(
-                lambda *args, index=index: self.handleButton(index))
-            '''
+
         cnx.close()
         if (not cnx.is_connected()):
                 print('Disconnected from MySQL database')  
@@ -525,8 +507,7 @@ class Window(QMainWindow):
     def addEntry(self):
         print("Add Entry clicked")
         entry=[]
-
-        #entry.append(self.tablelist[0].item(0,0).text())        
+     
         print(entry)
         entry.append(str(self.comboboxBrand.currentText()))
         entry.append(self.tablelist[0].item(0,1).text())
@@ -536,91 +517,87 @@ class Window(QMainWindow):
         entry.append(str(self.comboboxPrice.currentText()))
         entry.append(str(self.comboboxPlace.currentText()))
         print("Entry: ",entry)   
+
+        
+    def changeEntry(self):
+        print("changeEntry clicked")
+        changeEntryList=[]
+        
+        changeEntryList.append(self.rowChangeList[0])
+        changeEntryList.append(str(self.comboboxBrandCh.currentText()))
+        changeEntryList.append(self.tablelist[2].item(0,1).text())
+        changeEntryList.append(self.tablelist[2].item(0,2).text())
+        changeEntryList.append(str(self.comboboxRatingCh.currentText()))
+        changeEntryList.append(str(self.comboboxWeightCh.currentText()))
+        changeEntryList.append(str(self.comboboxPriceCh.currentText()))
+        changeEntryList.append(str(self.comboboxPlaceCh.currentText()))
+        print("Entry: ",changeEntryList) 
+        self.load() 
+        self.Tab.setCurrentIndex(1)
+        self.Tab.removeTab(2)
+        
         
     def change(self, index):
         print("Change Entry")
-        rowChangeList=[]
+        self.rowChangeList=[]
         row = index
-        #print(row)
         self.Tab.addTab(self.tablist[2], (self.tablabellistname[2]))
         self.tablelist[2].setRowCount(1)
         
-        for xj in range(0,(len(self.headerlist))-2):
+        for xj in range(0,(len(self.headerlistNew)+1)):
             print(str(self.tablelist[1].item(row,xj).text()))
-            #if(self.tablelist[1].item(row,xj).text().isEmpty()):
-            #    rowlist.append("")
-            #else:
-            rowChangeList.append(str(self.tablelist[1].item(row,xj).text()))
+            self.rowChangeList.append(str(self.tablelist[1].item(row,xj).text()))
             
-        print(rowChangeList)
+        print(self.rowChangeList)
         
-        for i in range(len(rowChangeList)):
-            self.tablelist[2].setItem(0, i,QTableWidgetItem(str(rowChangeList[i])))
-        self.Tab.setCurrentIndex(2)
+        
+        self.tablelist[2].setItem(0, 1,QTableWidgetItem(str(self.rowChangeList[1])))
+
+        self.tablelist[2].setItem(0, 2,QTableWidgetItem(str(self.rowChangeList[2])))
+
         
         #self.comboBoxBrand.setindex()
         #combobox
+        print(self.rowChangeList)
         self.comboboxBrandCh = QComboBox(self)
         self.comboboxBrandCh.addItems(self.brandList)
-        self.comboboxBrandCh.setCurrentText(rowChangeList[1])
+        self.comboboxBrandCh.setCurrentText(self.rowChangeList[1])
         self.comboboxBrandCh.setEditable(True)
-        self.tablelist[2].setCellWidget(0,0,self.comboboxBrandCh)
-        
+        self.tablelist[2].setCellWidget(0,0,self.comboboxBrandCh)  
         
         self.comboboxWeightCh = QComboBox(self)
         self.comboboxWeightCh.addItems(self.weightList)
-        self.comboboxWeightCh.setCurrentText(rowChangeList[5])
+        self.comboboxWeightCh.setCurrentText(self.rowChangeList[5])
         self.tablelist[2].setCellWidget(0,4,self.comboboxWeightCh)
         
-        
-        self.comboboxPrice = QComboBox(self)
+        self.comboboxPriceCh = QComboBox(self)
         self.comboboxPriceCh.addItems(self.priceList)
-        self.comboboxPriceCh.setCurrentText(rowChangeList[3])
+        self.comboboxPriceCh.setCurrentText(self.rowChangeList[6])
         self.tablelist[2].setCellWidget(0,5,self.comboboxPriceCh)
         
         self.comboboxRatingCh = QComboBox(self)
         self.comboboxRatingCh.addItems(self.ratingList)
-        self.comboboxRatingCh.setCurrentText(rowChangeList[4])
+        self.comboboxRatingCh.setCurrentText(self.rowChangeList[4])
         self.tablelist[2].setCellWidget(0,3,self.comboboxRatingCh)
-
         
         self.comboboxPlaceCh = QComboBox(self)
         self.comboboxPlaceCh.addItems(self.placeList)
-        self.comboboxPlaceCh.setCurrentText(rowChangeList[5])
+        self.comboboxPlaceCh.setCurrentText(self.rowChangeList[7])
         self.tablelist[2].setCellWidget(0,6,self.comboboxPlaceCh)
         
-        '''
-        self.comboboxBrand.setCurrentText(rowChangeList[1])
-        self.tablelist[2].setCellWidget(0,0,self.comboboxBrand)#
-        print(rowChangeList[1])
-        self.tablelist[2].setCellWidget(0,1,secomboboxPriceChght)
-        self.tablelist[2].setCellWidget(0,2,self.comboboxPrice)
-        self.tablelist[2].setCellWidget(0,3,self.comboboxRating)
-        self.tablelist[2].setCellWidget(0,4,self.comboboxPlace)        
-        '''
+        self.Tab.setCurrentIndex(2)
         
-        #for yi in range(0,10):
-         #   rowlist.append(self.tablelist[1].selectedItems().item(0,yi).text())
+        #save new values of the row in list
+
          
     def delete(self, index):
         print("Delete Entry")
         rowDeleteList=[]
         row = index
         #print(row)
-        self.Tab.addTab(self.tablist[3], (self.tablabellistname[3]))
-        self.tablelist[3].setRowCount(1)
-        for xj in range(0,len(self.headerlist)-2):
-            print(str(self.tablelist[1].item(row,xj).text()))
-            #if(self.tablelist[1].item(row,xj).text().isEmpty()):
-            #    rowlist.append("")
-                #else:
-            rowDeleteList.append(str(self.tablelist[1].item(row,xj).text()))
+        rowDeleteList.append(str(self.tablelist[1].item(row,0).text()))
         print(rowDeleteList)
-        
-        #Insert rowDeleteList into tablelist[3]
-        for i in range(len(rowDeleteList)):
-            self.tablelist[3].setItem(0, i,QTableWidgetItem(str(rowDeleteList[i])))
-        self.Tab.setCurrentIndex(3)
+        self.load()
         
         
 if __name__ == '__main__':
@@ -632,13 +609,3 @@ if __name__ == '__main__':
         window = Window()
         window.show()
         sys.exit(app.exec_())
-'''
-    else:
-        registration= Registration()
-        registration.show()
-        sys.exit(app.exec_())
-
-    app = QApplication(sys.argv)
-    ex = App()
-    sys.exit(app.exec_())
-    '''
