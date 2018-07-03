@@ -108,7 +108,7 @@ class Login(QDialog):
             print("\n")
             for currentQTableWidgetItem in self.tableWidget.selectedItems():
                 print(currentQTableWidgetItem.row(), currentQTableWidgetItem.column(), currentQTableWidgetItem.text())
-        
+         
         '''
         layout = QVBoxLayout(self)
         layout.addWidget(self.username)

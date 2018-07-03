@@ -6,7 +6,7 @@ import mysql.connector
 from mysql.connector import Error
  
 
- 
+  
 
 '''
 Created on 30.06.2018
