@@ -14,10 +14,11 @@ Created on 30.06.2018
 
 @author: Michi
 '''
+'''
 global user_name
 global user_rights
 global user_id
-
+'''
 
 '''
 class user():
@@ -266,9 +267,10 @@ class Login(QDialog):
 class Window(QMainWindow):
     def __init__(self, parent=None):
         super(Window, self).__init__(parent)
+        '''
         global user_name
         print("INFO:",user_name)
-        
+        '''
         self.setMinimumSize(1400, 700)
         self.tablist = []
         self.tablabellist = []
