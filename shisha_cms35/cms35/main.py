@@ -5,7 +5,7 @@ from PyQt5.QtCore import *
 import mysql.connector
 from mysql.connector import Error
 from msilib.schema import ComboBox
-from _sqlite3 import Row
+
 
 '''
 @author: Michael Stych, Marcel Gruber
